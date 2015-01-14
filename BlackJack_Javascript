@@ -1,0 +1,190 @@
+
+
+var picked = [];
+
+// Card Constructor
+function Card (s, n) {
+  var suit = s;
+  var number = n;
+  this.getNumber = function(){
+    return number;
+  };
+  this.getSuit = function(){
+    return suit;
+  };
+  this.combine = function(){
+     switch(this.getSuit()){
+            case 1:
+                return +this.getNumber() + " of clubs";
+            case 2: 
+                return +this.getNumber() + " of diamonds";
+            case 3:
+                return +this.getNumber() + " of hearts";
+            case 4:
+                return +this.getNumber() + " of spades";
+            default:
+                return;
+            } 
+  };
+  
+  this.getValue = function(){
+        if(number>=10){
+            return 10;
+        } else if (number === 1){
+            return 11;
+        } else {
+            return number;   
+        }       
+  };
+}
+var deal = function(){
+    
+    var ranSuit = Math.ceil(Math.random()*4);   
+    var ranNum = Math.ceil(Math.random()*13);
+    var newCard = new Card(ranSuit,ranNum);
+    for(i=0;i<picked.length;i++){
+      if(newCard.getSuit()===picked[i][0] && newCard.getNumber()===picked[i][1]){
+        deal();
+      }
+    }
+    picked.push([newCard.getSuit(),newCard.getNumber()]);
+    return newCard;
+};
+function Hand() {
+    var card1 = deal();
+    var card2 = deal();
+    var hold = [card1, card2];
+    this.getHand = function(){
+        return hold;   
+    };
+    this.score = function(){
+        var sum = 0;  
+        for(i=0;i<hold.length;i++){
+           sum += hold[i].getValue();
+           if(hold[i].getValue() === 11){
+               if(sum >21){
+                   sum -= 10;
+               } else {
+                   sum = sum;
+               }
+           }
+        }
+        return sum;
+    };
+    this.printHand = function(){
+      var temp = "";  
+      for(i=0;i<hold.length;i++){
+            switch(hold[i].getSuit()){
+            case 1:
+                switch(hold[i].getNumber()){
+                      case 1:
+                        temp = temp + "Ace" + " of clubs " + "& "; break;
+                      case 11:
+                        temp = temp + "Jack" + " of clubs " + "& "; break;
+                      case 12:
+                        temp = temp + "Queen" + " of clubs " + "& "; break;
+                      case 13:
+                        temp = temp + "King" + " of clubs " + "& "; break;
+                      default:
+                        temp = temp + hold[i].getNumber() + " of clubs " + "& "; 
+                }
+                break;
+            case 2: 
+                switch(hold[i].getNumber()){
+                      case 1:
+                        temp = temp + "Ace" + " of diamonds " + "& "; break;
+                      case 11:
+                        temp = temp + "Jack" + " of diamonds " + "& "; break;
+                      case 12:
+                        temp = temp + "Queen" + " of diamonds " + "& "; break;
+                      case 13:
+                        temp = temp + "King" + " of diamonds " + "& "; break;
+                      default:
+                        temp = temp + hold[i].getNumber() + " of diamonds " + "& "; 
+                }
+                break;
+            case 3:
+                 switch(hold[i].getNumber()){
+                      case 1:
+                        temp = temp + "Ace" + " of hearts " + "& "; break;
+                      case 11:
+                        temp = temp + "Jack" + " of hearts " + "& "; break;
+                      case 12:
+                        temp = temp + "Queen" + " of hearts " + "& "; break;
+                      case 13:
+                        temp = temp + "King" + " of hearts " + "& "; break;
+                      default:
+                        temp = temp + hold[i].getNumber() + " of hearts " + "& "; 
+                }
+                break;
+              case 4:
+                switch(hold[i].getNumber()){
+                      case 1:
+                        temp = temp + "Ace" + " of spades " + "& "; break;
+                      case 11:
+                        temp = temp + "Jack" + " of spades " + "& "; break;
+                      case 12:
+                        temp = temp + "Queen" + " of spades " + "& "; break;
+                      case 13:
+                        temp = temp + "King" + " of spades " + "& "; break;
+                      default:
+                        temp = temp + hold[i].getNumber() + " of spades " + "& "; 
+                }
+                break;
+
+            }
+          
+        }
+      return temp.substring(0,temp.length-3);
+    };
+    this.hitMe = function() {
+        var newCard = deal();
+        hold.push(newCard);
+    };
+}
+
+function playAsDealer(){
+    var dealerHand = new Hand();  
+    while(dealerHand.score() < 17){
+        dealerHand.hitMe();
+    }
+    return dealerHand;  
+}
+
+function playAsUser(){
+    var userHand = new Hand();
+    console.log(userHand.printHand());
+    var decision = confirm("You've got " + userHand.printHand() + ". Hit OK if you want to hit; Hit Cancel if you want to stand.");
+    while (decision === true && userHand.score() < 21){
+        userHand.hitMe();
+        decision = confirm("You've got " + userHand.printHand() + " now. Another Hit? or Stand?.");
+      // noprotect
+    } 
+    return userHand;
+}
+
+function declareWinner(userHand, dealerHand){
+    if(userHand > 21){
+        return "You Busted";
+    } else if(dealerHand >21) {
+        return "Dealer Busted. You win!";
+    } else if (userHand < dealerHand){
+        return "You Lose";
+    } else if (userHand > dealerHand){
+        return "You win!";
+    } else {
+        return "You tied!";
+    }
+}
+function playGame(){
+    
+    
+    var userHand = playAsUser();
+    var dealerHand = playAsDealer();
+    var winMsg = declareWinner(userHand.score(), dealerHand.score());
+    console.log("Dealer has "+dealerHand.printHand());
+    console.log("User has "+userHand.printHand());
+    console.log(winMsg);
+    console.log("=============================================");
+}
+playGame();
